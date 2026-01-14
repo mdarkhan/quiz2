@@ -595,33 +595,67 @@ svg.setAttribute("height",maxY-minY);
 canvas.appendChild(svg);
 
 /* ================= EDGES ================= */
+const edgeFrag = document.createDocumentFragment();
+
 edges.forEach(e=>{
-  const p=document.createElementNS(svg.namespaceURI,"path");
-  const x1=e.a.x-minX+NODE_W/2,y1=e.a.y-minY+NODE_H;
-  const x2=e.b.x-minX+NODE_W/2,y2=e.b.y-minY;
-  p.setAttribute("d",`M${x1},${y1} C${x1},${y1+60} ${x2},${y2-60} ${x2},${y2}`);
-  p.setAttribute("stroke","#94a3b8");
+  const p = document.createElementNS(svg.namespaceURI,"path");
+
+  const x1 = e.a.x - minX + NODE_W/2;
+  const y1 = e.a.y - minY + NODE_H;
+  const x2 = e.b.x - minX + NODE_W/2;
+  const y2 = e.b.y - minY;
+
+  p.setAttribute(
+    "d",
+    `M${x1},${y1} C${x1},${y1+60} ${x2},${y2-60} ${x2},${y2}`
+  );
+
+  const isGap =
+    e.a.type === "gap-green" ||
+    e.b.type === "gap-green";
+
+  p.setAttribute("stroke", isGap ? "#6ee7b7" : "#94a3b8");
+  p.setAttribute("stroke-width", isGap ? "2" : "2");
   p.setAttribute("fill","none");
-  p.setAttribute("stroke-width","2");
-  svg.appendChild(p);
+
+  if(isGap){
+    p.setAttribute("stroke-dasharray","6 6");
+  }
+
+  edgeFrag.appendChild(p);
 });
 
+svg.appendChild(edgeFrag);
+
+
 /* ================= NODES ================= */
+const nodeFrag = document.createDocumentFragment();
+const nodeMap = new Map();
+
 nodes.forEach(n=>{
-  const d=document.createElement("div");
-  d.className="node";
-  if(n.type==="prophet") d.classList.add("prophet");
-  d.style.left=(n.x-minX)+"px";
-  d.style.top=(n.y-minY)+"px";
-  d.style.background=color(n.type);
-  d.style.borderColor=color(n.type);
-  d.textContent=n.name;
-  d.onclick=e=>{
+  const d = document.createElement("div");
+  d.className = "node";
+
+  if(n.type === "prophet") d.classList.add("prophet");
+
+  d.style.left = (n.x - minX) + "px";
+  d.style.top  = (n.y - minY) + "px";
+  d.style.background = color(n.type);
+  d.style.borderColor = color(n.type);
+
+  const icon = iconFor(n.type);
+  d.innerHTML = `<div style="font-size:18px">${icon}</div><div>${n.name}</div>`;
+
+  d.onclick = e=>{
     e.stopPropagation();
     openDrawer(n);
   };
-  canvas.appendChild(d);
+
+  nodeFrag.appendChild(d);
+  nodeMap.set(n.name, { node:n, el:d });
 });
+
+canvas.appendChild(nodeFrag);
 
 /* ================= PAN + ZOOM ================= */
 let scale=.6,ox=300,oy=160,drag=false,sx,sy;
@@ -637,6 +671,32 @@ container.onwheel=e=>{
   scale=Math.max(.05,Math.min(3,scale-e.deltaY*0.001));
   update();
 };
+const searchBox = document.getElementById("searchBox");
+
+searchBox.addEventListener("input", ()=>{
+  const q = searchBox.value.trim();
+  if(!q) return;
+
+  for(const [name,obj] of nodeMap){
+    if(name.includes(q)){
+      focusNode(obj.el);
+      break;
+    }
+  }
+});
+
+function focusNode(el){
+  const x = el.offsetLeft;
+  const y = el.offsetTop;
+
+  scale = 1.2;
+  ox = window.innerWidth/2 - (x + NODE_W/2) * scale;
+  oy = window.innerHeight/2 - (y + NODE_H/2) * scale;
+  update();
+
+  el.style.boxShadow = "0 0 30px #facc15";
+  setTimeout(()=>el.style.boxShadow="",1200);
+}
 
 /* ================= DRAWER ================= */
 function openDrawer(n){
@@ -666,8 +726,21 @@ function color(t){
     "gap-green":"#a7f3d0"
   }[t]||"#64748b";
 }
+function iconFor(type){
+  return {
+    root:"🕋",
+    prophet:"🕌",
+    "prophet-line":"🕌",
+    "prophet-ancestor":"🕌",
+    bayidah:"🏛️",
+    ariba:"🏛️",
+    mustariba:"🏛️",
+    "gap-green":"➖"
+  }[type] || "👤";
+}
 </script>
 
 </body>
 </html>
+
 
