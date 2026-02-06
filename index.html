@@ -1,746 +1,900 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>আরব জাতিগোষ্ঠী পরিচিতি</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইসলামিক কুইজ</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Authentic Islamic Green Palette */
+            --primary-dark: #145A32;    /* Deep Forest Green */
+            --primary-light: #27AE60;   /* Fresh Green */
+            --accent-gold: #F1C40F;     /* Bright Gold */
+            --text-white: #FFFFFF;
+            --text-dark: #0B5345;
+            
+            --correct-color: #2E7D32;
+            --wrong-color: #C0392B;
 
-<style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:'Noto Sans Bengali',sans-serif;
-  background:#f8fafc;
-  overflow:hidden;
-  color:#1e293b;
-}
+            --glass-bg: #FFFFFF;
+            --shadow-soft: 0 10px 30px rgba(20, 90, 50, 0.1);
+        }
 
-/* HEADER */
-header{
-  position:absolute;
-  top:0;left:0;right:0;
-  z-index:20;
-  background:#ffffffee;
-  border-bottom:1px solid #e5e7eb;
-  padding:12px 24px;
-}
-header h1{margin:0;font-size:20px}
-header p{margin:2px 0 0;font-size:12px;color:#64748b}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* CANVAS */
-#container{
-  position:absolute;
-  inset:0;
-  cursor:grab;
-}
-#container.dragging{cursor:grabbing}
+        body {
+            font-family: 'Noto Sans Bengali', sans-serif;
+            background-color: #F4F8F5; 
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-#canvas{
-  position:absolute;
-  transform-origin:0 0;
-}
+        /* --- STICKY TIMER --- */
+        #sticky-timer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--primary-dark);
+            color: var(--accent-gold);
+            text-align: center;
+            padding: 12px;
+            font-weight: 700;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+        #sticky-timer.active { transform: translateY(0); }
 
-svg{
-  position:absolute;
-  left:0;top:0;
-  overflow:visible;
-}
+        /* --- HEADER --- */
+        header {
+            width: 100%;
+            background: linear-gradient(180deg, var(--primary-dark) 0%, #1E8449 100%);
+            color: white;
+            text-align: center;
+            padding: 2.5rem 1rem 4rem 1rem;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 4px 20px rgba(20, 90, 50, 0.2);
+            position: relative;
+            transition: all 0.5s ease;
+        }
 
-/* NODE */
-.node{
-  position:absolute;
-  width:150px;
-  height:65px;
-  padding:6px;
-  border-radius:8px;
-  border:2px solid;
-  text-align:center;
-  font-size:13px;
-  font-weight:600;
-  cursor:pointer;
-  transition:.25s;
-  box-shadow:0 2px 6px rgba(0,0,0,.15);
-}
-.node:hover{
-  transform:scale(1.12);
-  z-index:50;
-  background:#f59e0b!important;
-  border-color:#f59e0b!important;
-  color:white!important;
-}
-.node.prophet{
-  box-shadow:0 0 22px rgba(16,185,129,.7);
-}
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: var(--accent-gold);
+            opacity: 0.7;
+        }
 
-/* DRAWER */
-#drawer{
-  position:absolute;
-  top:0;right:0;bottom:0;
-  width:360px;
-  background:white;
-  border-left:1px solid #e5e7eb;
-  box-shadow:-8px 0 24px rgba(0,0,0,.2);
-  display:none;
-  flex-direction:column;
-  z-index:30;
-}
-#drawer header{
-  background:#047857;
-  color:white;
-  padding:12px;
-}
-#drawer .content{
-  padding:16px;
-  overflow:auto;
-}
-.badge{
-  display:inline-block;
-  background:#f1f5f9;
-  border:1px solid #e2e8f0;
-  border-radius:999px;
-  padding:4px 10px;
-  font-size:12px;
-  margin:4px;
-}
-</style>
+        .bismillah {
+            font-family: 'Amiri', serif;
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            display: block;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 2px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.95;
+            background: rgba(255,255,255,0.15);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        main {
+            width: 95%;
+            max-width: 600px;
+            margin-top: -3rem; /* Overlap header */
+            z-index: 10;
+            padding-bottom: 3rem;
+            transition: margin-top 0.5s ease;
+        }
+        
+        main.no-header {
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-soft);
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+            border-top: 4px solid var(--primary-light);
+        }
+        .card.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- FORM ELEMENTS --- */
+        .section-title {
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #E9F7EF;
+            padding-bottom: 5px;
+            margin-top: 1.5rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+
+        .grid-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        /* Three column grid for sheets if needed, or flex wrap */
+        .sheet-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .mode-select input { display: none; }
+        .mode-select label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 2px solid #E9F7EF;
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            height: 100%;
+            color: #555;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .mode-select input:checked + label {
+            border-color: var(--primary-light);
+            background: #E9F7EF;
+            color: var(--primary-dark);
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.15);
+        }
+
+        .mode-icon {
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+            color: var(--primary-light);
+        }
+
+        /* --- TIMER INPUT --- */
+        .timer-config {
+            background: #F4F8F5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+            border: 1px dashed var(--primary-light);
+        }
+        .timer-config.show { display: block; }
+        
+        .timer-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #D5D8DC;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+        .timer-input:focus { outline: none; border-color: var(--primary-light); }
+
+        /* --- BUTTONS --- */
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            background: var(--primary-dark);
+            color: white;
+            margin-top: 20px;
+        }
+        .btn:hover { background: #0E4526; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background: #95A5A6; cursor: not-allowed; }
+
+        .btn-outline {
+            background: white;
+            border: 2px solid var(--primary-dark);
+            color: var(--primary-dark);
+        }
+        .btn-outline:hover { background: #E9F7EF; }
+
+        /* --- QUIZ UI --- */
+        .q-number {
+            font-size: 0.9rem;
+            color: #7DCEA0;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        .q-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1B2631;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .option-group { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            position: relative;
+            background: white;
+            border: 1px solid #D5D8DC;
+            border-radius: 8px;
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            color: #34495E;
+        }
+        
+        .option-btn:hover { background: #FDFEFE; border-color: var(--primary-light); }
+        
+        .option-btn.selected {
+            background: #E9F7EF;
+            border-color: var(--primary-dark);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .option-circle {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #BDC3C7;
+            border-radius: 50%;
+            margin-right: 15px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+        }
+        
+        .option-btn.selected .option-circle {
+            border-color: var(--primary-dark);
+            background: var(--primary-dark);
+        }
+
+        /* Multiple Choice Square */
+        .option-btn.multi .option-circle { border-radius: 4px; }
+
+        /* Feedback Colors */
+        .option-btn.correct { background: #D4EFDF; border-color: var(--correct-color); color: var(--correct-color); }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); content: '✓'; }
+        
+        .option-btn.wrong { background: #FADBD8; border-color: var(--wrong-color); color: var(--wrong-color); }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); }
+
+        .explanation {
+            background: #FEF9E7;
+            border-left: 4px solid var(--accent-gold);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+            color: #7F6000;
+        }
+
+        /* --- RESULTS --- */
+        .result-score {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: white;
+            border: 6px solid var(--primary-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px auto;
+        }
+        .score-val { font-size: 2.8rem; font-weight: 800; color: var(--primary-dark); line-height: 1; }
+        .score-max { font-size: 1.1rem; color: #7F8C8D; }
+        
+        .review-card {
+            background: white;
+            border-bottom: 1px solid #ECF0F1;
+            padding: 15px 0;
+        }
+        
+        footer { margin-top: auto; padding: 20px; color: #95A5A6; font-size: 0.8rem; }
+        
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.9);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        @media(max-width:600px) {
+            h1 { font-size: 2rem; }
+            .grid-options { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-
 <body>
 
-<header>
-  <h1>আরব জাতিগোষ্ঠী পরিচিতি</h1>
-  <p>PDF সোর্স ভিত্তিক পূর্ণ বংশলতিকা</p>
-</header>
+    <!-- Sticky Timer -->
+    <div id="sticky-timer">
+        <span>সময় বাকি:</span>
+        <span id="timer-val">00:00</span>
+    </div>
 
-  <div style="
-  position:absolute;
-  top:64px;
-  left:16px;
-  z-index:30;
-  background:white;
-  padding:8px;
-  border-radius:8px;
-  box-shadow:0 4px 12px rgba(0,0,0,.15)
-">
-  <input
-    id="searchBox"
-    placeholder="নাম অনুসন্ধান করুন…"
-    style="width:220px;padding:6px 10px;font-size:14px"
-  />
-</div>
-  
-<div id="container">
-  <div id="canvas"></div>
-</div>
+    <!-- Loading -->
+    <div id="loading-overlay">
+        <div style="font-size:2rem; margin-bottom:10px;">⌛</div>
+        <span>প্রশ্ন লোড হচ্ছে...</span>
+    </div>
 
-<div id="drawer">
-  <header>
-    <button onclick="closeDrawer()" style="float:right;background:none;border:none;color:white;font-size:18px">✕</button>
-    <h3 id="dTitle"></h3>
-  </header>
-  <div class="content">
-    <p id="dInfo"></p>
-    <div id="dChildren"></div>
-  </div>
-</div>
+    <!-- Header -->
+    <header id="main-header">
+        <span class="bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</span>
+        <h1>ইসলামিক কুইজ</h1>
+        <span class="subtitle">জ্ঞানই আলো, অজ্ঞতা অন্ধকার</span>
+    </header>
 
-<script>
-/* ================= FULL ORIGINAL DATA (UNCHANGED) ================= */
-const rawData = {
-  id: "root",
-  name: "আরব জাতিগোষ্ঠী",
-  type: "root",
-  details: {
-    info: "ঐতিহাসিক সূত্র মতে, বংশ পরিক্রমা অনুসারে সমগ্র আরব জাতি প্রধানত তিন ভাগে বিভক্ত। আরবের ভৌগোলিক অবস্থান সাগর ও পাহাড় বেষ্টিত এক প্রাকৃতিক দুর্গ।",
-    location: "আরব উপদ্বীপ (১০-১৩ লক্ষ বর্গমাইল)"
-  },
-  children: [
-    {
-      id: "bayidah",
-      name: "আরবে বায়িদাহ",
-      type: "bayidah",
-      details: {
-        info: "এরা হলো প্রাচীন আরব জাতি। ধরাপৃষ্ঠ হতে এদের অস্তিত্ব প্রায় নিঃশেষ হয়ে গিয়েছে। ইতিহাসের পাতায় এদের খুব বেশি তথ্য পাওয়া যায় না।"
-      },
-      children: [
-        { name: "আদ", type: "bayidah", details: { info: "প্রাচীন ধংসপ্রাপ্ত জাতি।" } },
-        { name: "ছামুদ", type: "bayidah", details: { info: "প্রাচীন ধংসপ্রাপ্ত জাতি।" } },
-        { name: "আমালিকা", type: "bayidah" },
-        { name: "জুরহুম (প্রাচীন)", type: "bayidah", details: { info: "প্রাচীন জুরহুম গোত্র।" } },
-        { name: "হাজরা মাউত", type: "bayidah", details: { location: "দক্ষিণ আরব" } }
-      ]
-    },
-    {
-      id: "ariba",
-      name: "আরবে আরিবা",
-      type: "ariba",
-      details: {
-        info: "এরা কাহতানি আরব। মূল অবস্থান ইয়ামান (দক্ষিণ আরব)।",
-        location: "ইয়ামান"
-      },
-      children: [
-        {
-          name: "কাহতান",
-          type: "ariba",
-          children: [
-            {
-              name: "ইয়ারুব",
-              type: "ariba",
-              children: [
-                {
-                  name: "ইয়াশজুব",
-                  type: "ariba",
-                  children: [
-                    {
-                      name: "সাবা",
-                      type: "ariba",
-                      details: { info: "প্রাচীন ইয়ামান রাজ্যের রাজধানী এঁর নামেই। রানী বিলকিস এই বংশের।" },
-                      children: [
-                        {
-                          name: "হিময়ার",
-                          type: "ariba",
-                          children: [
-                            { name: "যাইদুল জুরহুম", type: "ariba" },
-                            { name: "কুজ'আ", type: "ariba" },
-                            { name: "সাকাসিক", type: "ariba" }
-                          ]
-                        },
-                        {
-                          name: "কাহলান",
-                          type: "ariba",
-                          children: [
-                            {
-                              name: "আযদ",
-                              type: "ariba",
-                              children: [
-                                {
-                                  name: " আমর আল মুযাইকিয়া",
-                                  type: "ariba",
-                                  children: [
-                                    {
-                                      name: "সা'লাবা",
-                                      type: "ariba",
-                                      children: [
-                                        {
-                                          name: "হারিসা",
-                                          type: "ariba",
-                                          children: [
-                                            { name: "আউস", type: "ariba" },
-                                            { name: "খাযরাজ", type: "ariba" }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      name: "হারিসা (খুযা'আ)",
-                                      type: "ariba",
-                                      children: [
-                                        { 
-                                          name: "লুহাই", 
-                                          type: "ariba",
-                                          children: [
-                                            { 
-                                              name: "আমর", 
-                                              type: "ariba",
-                                              details: { info: "তিনি সর্বপ্রথম মক্কায় মূর্তিপূজা চালু করেন।" }
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    { name: "ইমরান", type: "ariba", children: [{ name: "আযদে ওমানি", type: "ariba" }] },
-                                    { name: "জাফনা", type: "ariba", children: [{ name: "গাসসান গোত্র", type: "ariba" }] }
-                                  ]
-                                }
-                              ]
-                            },
-                            { name: "লাখম", type: "ariba" },
-                            { name: "তাঈ", type: "ariba" },
-                            { name: "কিনদা", type: "ariba" }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  name: "জুরহুম (দ্বিতীয়)",
-                  type: "ariba",
-                  details: { info: "মক্কায় বসবাস শুরু করেন। ইসমাঈল (আ.) এঁর থেকে আরবি শেখেন।" }
-                }
-              ]
+    <main id="main-container">
+        <!-- Home -->
+        <div id="screen-home" class="card active">
+            
+            <!-- Source Selection -->
+            <div class="section-title">বিষয়বস্তু নির্বাচন</div>
+            <div id="sheet-list" class="sheet-options">
+                <!-- Will be populated by JS -->
+                <div>লোডিং...</div>
+            </div>
+
+            <!-- Mode Selection -->
+            <div class="section-title">কুইজ মোড</div>
+            <div class="grid-options">
+                <div class="mode-select">
+                    <input type="radio" name="mode" id="m-single" value="single" checked>
+                    <label for="m-single">
+                        <div class="mode-icon">📚</div>
+                        <strong>প্র্যাকটিস</strong>
+                    </label>
+                </div>
+                <div class="mode-select">
+                    <input type="radio" name="mode" id="m-full" value="full">
+                    <label for="m-full">
+                        <div class="mode-icon">📝</div>
+                        <strong>এক্সাম</strong>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Timer Selection -->
+            <div class="section-title">সময় (অপশনাল)</div>
+            <div class="grid-options">
+                <div class="mode-select">
+                    <input type="radio" name="timer" id="t-off" value="off" checked onclick="toggleTimer(false)">
+                    <label for="t-off">সময় ছাড়া</label>
+                </div>
+                <div class="mode-select">
+                    <input type="radio" name="timer" id="t-on" value="on" onclick="toggleTimer(true)">
+                    <label for="t-on">সময় সেট</label>
+                </div>
+            </div>
+            
+            <div id="timer-box" class="timer-config">
+                <label style="display:block; margin-bottom:8px; font-size:0.9rem;">কত মিনিট?</label>
+                <input type="number" id="custom-min" class="timer-input" placeholder="উদাহরণ: ১০" min="1">
+            </div>
+
+            <button onclick="startQuiz()" class="btn" id="start-btn">কুইজ শুরু করুন</button>
+        </div>
+
+        <!-- Quiz -->
+        <div id="screen-quiz" class="card">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                <span id="q-progress" class="q-number">প্রশ্ন ১/১০</span>
+                <span id="q-source-badge" style="font-size:0.8rem; background:#E9F7EF; padding:3px 8px; border-radius:4px; color:var(--primary-dark);"></span>
+            </div>
+            
+            <div id="q-container"></div>
+
+            <div class="explanation" id="explanation">
+                <strong style="color:var(--primary-dark)">ব্যাখ্যা:</strong>
+                <p id="exp-text" style="margin-top:5px; font-size:0.95rem;"></p>
+            </div>
+
+            <div style="margin-top:30px;">
+                <button id="btn-submit" class="btn" onclick="submitAnswer()">উত্তর নিশ্চিত করুন</button>
+                <button id="btn-next" class="btn btn-outline" style="display:none;" onclick="nextQuestion()">পরবর্তী প্রশ্ন</button>
+                <button id="btn-finish" class="btn" style="display:none;" onclick="finishQuiz()">ফলাফল দেখুন</button>
+            </div>
+        </div>
+
+        <!-- Result -->
+        <div id="screen-result" class="card">
+            <h2 style="text-align:center; color:var(--primary-dark); margin-bottom:20px;">কুইজ ফলাফল</h2>
+            <div class="result-score">
+                <span id="score-val" class="score-val">0</span>
+                <span id="score-max" class="score-max">/0</span>
+            </div>
+            <p id="feedback-msg" style="text-align:center; font-size:1.2rem; font-weight:600; margin-bottom:30px;"></p>
+            <div id="review-list"></div>
+            <button onclick="location.reload()" class="btn btn-outline" style="margin-top:20px;">হোম পেজে ফিরুন</button>
+        </div>
+    </main>
+
+    <footer>
+        &copy; ২০২৬ ইসলামিক কুইজ | প্র্যাকটিস এর জন্য তৈরি
+    </footer>
+
+    <script>
+        // --- CONFIG ---
+        const SHEET_ID = '1UQkKKJ6QLJRyJqVRNyAcyKqtN1cmnbuIsGf9UtVSJyI';
+        const KNOWN_SHEETS = ['বই', 'লেকচার', 'শীট']; 
+
+        let questions = [];
+        let curIdx = 0;
+        let score = 0;
+        let userAns = [];
+        let mode = 'single';
+        let currentSheet = '';
+        let timerInterval;
+
+        // --- CORE FUNCTIONS ---
+        function initApp() {
+            try {
+                const container = document.getElementById('sheet-list');
+                
+                let html = '';
+                KNOWN_SHEETS.forEach((sheet, idx) => {
+                    const checked = idx === 0 ? 'checked' : '';
+                    html += `
+                    <div class="mode-select">
+                        <input type="radio" name="sheet" id="sheet-${idx}" value="${sheet}" ${checked}>
+                        <label for="sheet-${idx}">
+                            <div class="mode-icon">📚</div>
+                            <strong>${sheet}</strong>
+                        </label>
+                    </div>`;
+                });
+                container.innerHTML = html;
+                document.getElementById('custom-min').value = "";
+            } catch (e) {
+                console.error("Initialization error:", e);
+                document.getElementById('sheet-list').innerHTML = `<div style="color:red">Error initializing.</div>`;
             }
-          ]
         }
-      ]
-    },
-    {
-      id: "mustariba",
-      name: "আরবে মুস্তারিবা",
-      type: "mustariba",
-      details: {
-        info: "এরা ইসমাঈল বিন ইব্রাহিম (আ.) এর বংশধারা। এদের আদনানি আরবও বলা হয়."
-      },
-      children: [
-        {
-          name: "ইব্রাহিম (আ.)",
-          type: "prophet-ancestor",
-          children: [
-            {
-              name: "ইসমাঈল (আ.)",
-              type: "prophet-ancestor",
-              children: [
-                { name: "নাবিত", type: "mustariba" },
-                {
-                  name: "কাইদার",
-                  type: "prophet-line",
-                  children: [
-                    {
-                      id: "gap-ismail-adnan",
-                      name: "৪০+ প্রজন্মের ব্যবধান",
-                      type: "gap-green",
-                      children: [
-                        {
-                          name: "আদনান",
-                          type: "prophet-line",
-                          children: [
-                            {
-                              name: "মা'আদ",
-                              type: "prophet-line",
-                              children: [
-                                {
-                                  name: "নাযার",
-                                  type: "prophet-line",
-                                  children: [
-                                    { name: "ইয়াদ", type: "mustariba" },
-                                    { name: "আনমার", type: "mustariba" },
-                                    {
-                                      name: "রবি'আ",
-                                      type: "mustariba",
-                                      children: [
-                                        { 
-                                          name: "আসাদ", 
-                                          type: "mustariba",
-                                          children: [
-                                            { name: "আনযাহ", type: "mustariba" },
-                                            { 
-                                              name: "জালীদাহ", 
-                                              type: "mustariba",
-                                              children: [
-                                                { name: "বনু আব্দে কায়েস", type: "mustariba" },
-                                                { 
-                                                  name: "বনু ওয়ায়িল", 
-                                                  type: "mustariba",
-                                                  children: [
-                                                    { name: "বনু তাগলিব", type: "mustariba" },
-                                                    { 
-                                                      name: "বনু বকর", 
-                                                      type: "mustariba",
-                                                      children: [{ name: "বনু হানিফা", type: "mustariba" }]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      name: "মুদার",
-                                      type: "prophet-line",
-                                      children: [
-                                        { name: "কাইস আইলান", type: "mustariba" },
-                                        {
-                                          name: "ইলিয়াস",
-                                          type: "prophet-line",
-                                          children: [
-                                            {
-                                              name: "মুদরিকা",
-                                              type: "prophet-line",
-                                              children: [
-                                                {
-                                                  name: "খুযাইমা",
-                                                  type: "prophet-line",
-                                                  children: [
-                                                    {
-                                                      name: "আসাদ",
-                                                      type: "prophet-line",
-                                                      children: [
-                                                        {
-                                                          name: "কিনানাহ (কুরাইশ)",
-                                                          type: "prophet-line",
-                                                          children: [
-                                                            {
-                                                              name: "আন-নাদর",
-                                                              type: "prophet-line",
-                                                              children: [
-                                                                {
-                                                                  name: "মালিক",
-                                                                  type: "prophet-line",
-                                                                  children: [
-                                                                    {
-                                                                      name: "ফিহর (কুরাইশ)",
-                                                                      type: "prophet-line",
-                                                                      children: [
-                                                                        {
-                                                                          name: "গালিব",
-                                                                          type: "prophet-line",
-                                                                          children: [
-                                                                            {
-                                                                              name: "লুওয়াই",
-                                                                              type: "prophet-line",
-                                                                              children: [
-                                                                                {
-                                                                                  name: "কা'আব",
-                                                                                  type: "prophet-line",
-                                                                                  children: [
-                                                                                    {
-                                                                                      name: "মুররা",
-                                                                                      type: "prophet-line",
-                                                                                      children: [
-                                                                                        {
-                                                                                          name: "ইয়াকাজ",
-                                                                                          type: "mustariba",
-                                                                                          children: [{ name: "বনু মাখজুম", type: "mustariba", children: [{ name: "আবু জাহল", type: "mustariba" }] }]
-                                                                                        },
-                                                                                        {
-                                                                                          name: "কিলাব",
-                                                                                          type: "prophet-line",
-                                                                                          children: [
-                                                                                            {
-                                                                                              name: "যুহরা",
-                                                                                              type: "mustariba",
-                                                                                              details: { info: "বনী যুহরা গোত্রের প্রতিষ্ঠাতা। নবীজির মাতৃকুল।" },
-                                                                                              children: [
-                                                                                                {
-                                                                                                  name: "আব্দে মানাফ",
-                                                                                                  type: "mustariba",
-                                                                                                  children: [
-                                                                                                    {
-                                                                                                      name: "ওয়াহহাব",
-                                                                                                      type: "mustariba",
-                                                                                                      children: [{ name: "আমেনা", type: "mustariba", details: { info: "নবীজি (সা.)-এর রত্নগর্ভা মাতা।" } }]
-                                                                                                    }
-                                                                                                  ]
-                                                                                                }
-                                                                                              ]
-                                                                                            },
-                                                                                            {
-                                                                                              name: "কুসাই",
-                                                                                              type: "prophet-line",
-                                                                                              children: [
-                                                                                                { name: "আব্দুদ দার", type: "mustariba" },
-                                                                                                { name: "আব্দ", type: "mustariba" },
-                                                                                                { 
-                                                                                                  name: "আব্দুল উজ্জা", 
-                                                                                                  type: "mustariba", 
-                                                                                                  children: [
-                                                                                                    { 
-                                                                                                      name: "আসাদ", 
-                                                                                                      type: "mustariba", 
-                                                                                                      children: [
-                                                                                                        { 
-                                                                                                          name: "খুওয়াইলিদ", 
-                                                                                                          type: "mustariba", 
-                                                                                                          children: [{name: "খাদিজা (রাঃ)", type: "mustariba"}] 
-                                                                                                        },
-                                                                                                        { name: "নওফেল", type: "mustariba" }
-                                                                                                      ] 
-                                                                                                    }
-                                                                                                  ] 
-                                                                                                },
-                                                                                                { 
-                                                                                                  name: "আব্দে মানাফ", 
-                                                                                                  type: "prophet-line", 
-                                                                                                  children: [
-                                                                                                    { name: "নওফেল", type: "mustariba" },
-                                                                                                    { name: "মুত্তালিব", type: "mustariba" },
-                                                                                                    { 
-                                                                                                      name: "আব্দে শামস", 
-                                                                                                      type: "mustariba",
-                                                                                                      children: [
-                                                                                                        { 
-                                                                                                          name: "উমাইয়া", 
-                                                                                                          type: "mustariba", 
-                                                                                                          children: [
-                                                                                                            { 
-                                                                                                              name: "আবুল আস", 
-                                                                                                              type: "mustariba", 
-                                                                                                              children: [{ name: "আফফান" }, { name: "হাকাম" }] 
-                                                                                                            },
-                                                                                                            { 
-                                                                                                              name: "হারব", 
-                                                                                                              type: "mustariba", 
-                                                                                                              children: [{ name: "আবু সুফিয়ান" }] 
-                                                                                                            }
-                                                                                                          ] 
-                                                                                                        }
-                                                                                                      ] 
-                                                                                                    },
-                                                                                                    { 
-                                                                                                      name: "হাশিম", 
-                                                                                                      type: "prophet-line", 
-                                                                                                      children: [
-                                                                                                        { name: "আব্দুল মুত্তালিব", type: "prophet-line", children: [
-                                                                                                          { name: "আব্দুল্লাহ", type: "prophet-line", children: [
-                                                                                                            { name: "মুহাম্মাদ ﷺ", type: "prophet", details: { info: "আল্লাহর রাসূল এবং সর্বশেষ নবী।" } }
-                                                                                                          ] }
-                                                                                                        ] }
-                                                                                                      ] 
-                                                                                                    }
-                                                                                                  ] 
-                                                                                                }
-                                                                                              ] 
-                                                                                            }
-                                                                                          ]
-                                                                                        }
-                                                                                      ]
-                                                                                    }
-                                                                                  ]
-                                                                                }
-                                                                              ]
-                                                                            }
-                                                                          ]
-                                                                        }
-                                                                      ]
-                                                                    }
-                                                                  ]
-                                                                }
-                                                              ]
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
+
+        // Run immediately
+        initApp();
+
+        // --- FETCH & PARSE ---
+        async function fetchQuestionsFromSheet(sheetName) {
+            // Updated URL to ensure all data is returned and headers are handled
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&headers=0`;
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Network response was not ok");
+                const text = await response.text();
+                return parseCSV(text);
+            } catch (error) {
+                console.error("Error fetching sheet:", error);
+                return null;
             }
-          ]
         }
-      ]
-    }
-  ]
-};
-const NODE_W=150,NODE_H=65,V_GAP=100,H_GAP=40;
 
-/* ================= LAYOUT ENGINE ================= */
-function layout(node,depth=0){
-  node.children=node.children||[];
-  const kids=node.children.map(c=>layout(c,depth+1));
-  let totalW=NODE_W;
-  if(kids.length){
-    totalW=kids.reduce((a,c)=>a+c.totalW+H_GAP,0)-H_GAP;
-  }
-  return {...node,depth,totalW,children:kids};
-}
-function position(node,x){
-  let cx=x;
-  node.children.forEach(c=>{
-    position(c,cx);
-    cx+=c.totalW+H_GAP;
-  });
-  node.x=x+node.totalW/2-NODE_W/2;
-  node.y=node.depth*(NODE_H+V_GAP);
-}
+        // Simple CSV Parser to handle quotes and commas inside cells
+        function parseCSV(str) {
+            const arr = [];
+            let quote = false;
+            let row = [];
+            let col = '';
+            
+            for (let c = 0; c < str.length; c++) {
+                let cc = str[c], nc = str[c+1];
+                
+                if (cc === '"') {
+                    if (quote && nc === '"') { 
+                        col += '"'; 
+                        c++; 
+                    } else { 
+                        quote = !quote; 
+                    }
+                } else if (cc === ',' && !quote) {
+                    row.push(col); 
+                    col = '';
+                } else if ((cc === '\r' || cc === '\n') && !quote) {
+                    if (cc === '\r' && nc === '\n') c++; // skip CRLF
+                    row.push(col); 
+                    col = '';
+                    if (row.length > 0 && (row.length > 1 || row[0] !== '')) {
+                        arr.push(row); 
+                    }
+                    row = [];
+                } else {
+                    col += cc;
+                }
+            }
+            if (col || row.length > 0) { 
+                row.push(col); 
+                arr.push(row); 
+            }
+            return arr;
+        }
 
-/* ================= PROCESS ================= */
-const tree=layout(rawData);
-position(tree,0);
+        // Normalize Bangla Numerals to English
+        function banglaToEnglish(str) {
+            return str.replace(/[০-৯]/g, d => "০১২৩৪৫৬৭৮৯".indexOf(d));
+        }
 
-/* ================= FLATTEN ================= */
-const nodes=[],edges=[];
-(function walk(n){
-  nodes.push(n);
-  n.children.forEach(c=>{
-    edges.push({a:n,b:c});
-    walk(c);
-  });
-})(tree);
+        function processRawData(rows, sheetName) {
+            if(!rows || rows.length === 0) return [];
+            
+            return rows.map((row, i) => {
+                const q = row[0];
+                let opts = [];
+                let correctStr = "";
+                let exp = "";
 
-/* ================= BOUNDS ================= */
-const minX=Math.min(...nodes.map(n=>n.x))-300;
-const minY=Math.min(...nodes.map(n=>n.y))-300;
-const maxX=Math.max(...nodes.map(n=>n.x+NODE_W))+300;
-const maxY=Math.max(...nodes.map(n=>n.y+NODE_H))+300;
+                // Logic: Scan from end to find Answer Column
+                // Regex matches: Digits (0-9), Bangla Digits (০-৯), Space, Comma
+                // This allows detecting the answer column even if it uses Bangla numbers
+                const ansRegex = /^[\d\s,\u09E6-\u09EF]+$/;
 
-/* ================= CANVAS ================= */
-const canvas=document.getElementById("canvas");
-canvas.style.width=(maxX-minX)+"px";
-canvas.style.height=(maxY-minY)+"px";
+                let correctIdx = -1;
+                for (let j = row.length - 1; j > 0; j--) {
+                    const val = row[j] ? row[j].toString().trim() : "";
+                    if (val && ansRegex.test(val)) {
+                        correctIdx = j;
+                        break;
+                    }
+                }
 
-/* ================= SVG ================= */
-const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
-svg.setAttribute("width",maxX-minX);
-svg.setAttribute("height",maxY-minY);
-canvas.appendChild(svg);
+                if (correctIdx === -1) return null;
 
-/* ================= EDGES ================= */
-const edgeFrag = document.createDocumentFragment();
+                // Extract Options
+                for(let k=1; k < correctIdx; k++) {
+                    const o = row[k] ? row[k].toString().trim() : "";
+                    // Filter out the sheet name if it appears in columns
+                    if(o && o !== "" && o !== sheetName) opts.push(o);
+                }
 
-edges.forEach(e=>{
-  const p = document.createElementNS(svg.namespaceURI,"path");
+                // Normalize answer keys to English digits for parsing
+                correctStr = banglaToEnglish(row[correctIdx].toString());
+                exp = row[correctIdx + 1] || "";
 
-  const x1 = e.a.x - minX + NODE_W/2;
-  const y1 = e.a.y - minY + NODE_H;
-  const x2 = e.b.x - minX + NODE_W/2;
-  const y2 = e.b.y - minY;
+                const corr = [];
+                correctStr.split(/[, ]+/).forEach(c => {
+                    const num = parseInt(c);
+                    if(!isNaN(num) && num > 0) corr.push(num - 1);
+                });
 
-  p.setAttribute(
-    "d",
-    `M${x1},${y1} C${x1},${y1+60} ${x2},${y2-60} ${x2},${y2}`
-  );
+                return { id: i, q, opts, correct: corr, exp };
+            }).filter(x => x && x.opts.length > 0);
+        }
 
-  const isGap =
-    e.a.type === "gap-green" ||
-    e.b.type === "gap-green";
+        // --- NAVIGATION ---
+        function showScreen(id) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0,0);
+        }
 
-  p.setAttribute("stroke", isGap ? "#6ee7b7" : "#94a3b8");
-  p.setAttribute("stroke-width", isGap ? "2" : "2");
-  p.setAttribute("fill","none");
+        function toggleTimer(show) {
+            document.getElementById('timer-box').classList.toggle('show', show);
+        }
 
-  if(isGap){
-    p.setAttribute("stroke-dasharray","6 6");
-  }
+        // --- QUIZ LOGIC ---
+        async function startQuiz() {
+            const sheetRadio = document.querySelector('input[name="sheet"]:checked');
+            if(!sheetRadio) { alert("দয়া করে একটি বিষয় নির্বাচন করুন"); return; }
+            currentSheet = sheetRadio.value;
 
-  edgeFrag.appendChild(p);
-});
+            // UI Loading
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('start-btn').disabled = true;
 
-svg.appendChild(edgeFrag);
+            // Fetch
+            const rawRows = await fetchQuestionsFromSheet(currentSheet);
+            
+            // Process
+            questions = processRawData(rawRows, currentSheet);
 
+            // Hide Loading
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('start-btn').disabled = false;
 
-/* ================= NODES ================= */
-const nodeFrag = document.createDocumentFragment();
-const nodeMap = new Map();
+            if(!questions || questions.length === 0) { 
+                alert("এই বিষয়ে কোন প্রশ্ন লোড করা যায়নি বা শীটটি ফাঁকা। ইন্টারনেট সংযোগ চেক করুন।"); 
+                return; 
+            }
 
-nodes.forEach(n=>{
-  const d = document.createElement("div");
-  d.className = "node";
+            // Shuffle
+            questions.sort(() => Math.random() - 0.5);
 
-  if(n.type === "prophet") d.classList.add("prophet");
+            mode = document.querySelector('input[name="mode"]:checked').value;
+            const timerOn = document.querySelector('input[name="timer"]:checked').value === 'on';
+            
+            if(timerOn) {
+                const min = parseInt(document.getElementById('custom-min').value);
+                if(!min || min < 1) { alert("দয়া করে সঠিক সময় লিখুন"); return; }
+                startTimer(min * 60);
+            }
 
-  d.style.left = (n.x - minX) + "px";
-  d.style.top  = (n.y - minY) + "px";
-  d.style.background = color(n.type);
-  d.style.borderColor = color(n.type);
+            curIdx = 0;
+            score = 0;
+            userAns = new Array(questions.length).fill(null);
+            
+            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('main-container').classList.add('no-header');
+            document.getElementById('q-source-badge').innerText = currentSheet;
 
-  const icon = iconFor(n.type);
-  d.innerHTML = `<div style="font-size:18px">${icon}</div><div>${n.name}</div>`;
+            showScreen('screen-quiz');
+            if(mode === 'single') renderSingle();
+            else renderFull();
+        }
 
-  d.onclick = e=>{
-    e.stopPropagation();
-    openDrawer(n);
-  };
+        function startTimer(seconds) {
+            const display = document.getElementById('timer-val');
+            const bar = document.getElementById('sticky-timer');
+            bar.classList.add('active');
+            
+            timerInterval = setInterval(() => {
+                seconds--;
+                const m = Math.floor(seconds / 60).toString().padStart(2,'0');
+                const s = (seconds % 60).toString().padStart(2,'0');
+                display.innerText = toBanglaNum(`${m}:${s}`);
+                
+                if(seconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("সময় শেষ!");
+                    finishQuiz();
+                }
+            }, 1000);
+        }
 
-  nodeFrag.appendChild(d);
-  nodeMap.set(n.name, { node:n, el:d });
-});
+        // --- RENDERERS ---
+        function renderSingle() {
+            const q = questions[curIdx];
+            const isMulti = q.correct.length > 1;
+            
+            document.getElementById('q-progress').innerText = `প্রশ্ন ${toBanglaNum(curIdx+1)} / ${toBanglaNum(questions.length)}`;
+            
+            let html = `<div class="q-text">${q.q}</div>
+                        <div style="font-size:0.9rem; color:#777; margin-bottom:10px; font-style:italic;">
+                            ${isMulti ? "নোট: একাধিক উত্তর সঠিক হতে পারে" : ""}
+                        </div>
+                        <div class="option-group">`;
+            
+            q.opts.forEach((opt, i) => {
+                html += `
+                <div class="option-btn ${isMulti?'multi':''}" id="opt-${i}" onclick="selectOption(${i}, ${isMulti})">
+                    <div class="option-circle"></div>
+                    <span>${opt}</span>
+                </div>`;
+            });
+            html += `</div>`;
+            
+            document.getElementById('q-container').innerHTML = html;
+            document.getElementById('explanation').style.display = 'none';
+            
+            document.getElementById('btn-submit').style.display = 'block';
+            document.getElementById('btn-next').style.display = 'none';
+            document.getElementById('btn-finish').style.display = 'none';
+        }
 
-canvas.appendChild(nodeFrag);
+        function renderFull() {
+            document.getElementById('q-progress').innerText = `মোট প্রশ্ন: ${toBanglaNum(questions.length)}`;
+            document.getElementById('btn-submit').innerText = "কুইজ জমা দিন";
+            document.getElementById('btn-next').style.display = 'none';
 
-/* ================= PAN + ZOOM ================= */
-let scale=.6,ox=300,oy=160,drag=false,sx,sy;
-function update(){canvas.style.transform=`translate(${ox}px,${oy}px) scale(${scale})`}
-update();
+            let html = '';
+            questions.forEach((q, idx) => {
+                const isMulti = q.correct.length > 1;
+                html += `<div style="margin-bottom:30px; border-bottom:1px solid #eee; padding-bottom:20px;">
+                    <div class="q-number">প্রশ্ন ${toBanglaNum(idx+1)}</div>
+                    <div class="q-text" style="font-size:1.2rem; margin-bottom:10px;">${q.q}</div>
+                    <div class="option-group">`;
+                
+                q.opts.forEach((opt, i) => {
+                    html += `
+                    <div class="option-btn ${isMulti?'multi':''}" id="q${idx}-opt${i}" onclick="selectOptionFull(${idx}, ${i}, ${isMulti})">
+                        <div class="option-circle"></div>
+                        <span>${opt}</span>
+                    </div>`;
+                });
+                html += `</div></div>`;
+            });
+            document.getElementById('q-container').innerHTML = html;
+        }
 
-container.onmousedown=e=>{drag=true;container.classList.add("dragging");sx=e.clientX-ox;sy=e.clientY-oy};
-container.onmousemove=e=>{if(drag){ox=e.clientX-sx;oy=e.clientY-sy;update()}};
-container.onmouseup=()=>{drag=false;container.classList.remove("dragging")};
-container.onmouseleave=()=>drag=false;
-container.onwheel=e=>{
-  e.preventDefault();
-  scale=Math.max(.05,Math.min(3,scale-e.deltaY*0.001));
-  update();
-};
-const searchBox = document.getElementById("searchBox");
+        // --- INTERACTIONS ---
+        let currentSelection = [];
+        
+        function selectOption(idx, isMulti) {
+            if(document.getElementById('btn-submit').style.display === 'none') return;
 
-searchBox.addEventListener("input", ()=>{
-  const q = searchBox.value.trim();
-  if(!q) return;
+            if(isMulti) {
+                if(currentSelection.includes(idx)) currentSelection = currentSelection.filter(i=>i!==idx);
+                else currentSelection.push(idx);
+            } else {
+                currentSelection = [idx];
+            }
+            updateUISelection();
+        }
 
-  for(const [name,obj] of nodeMap){
-    if(name.includes(q)){
-      focusNode(obj.el);
-      break;
-    }
-  }
-});
+        function updateUISelection() {
+            document.querySelectorAll('.option-btn').forEach((el, i) => {
+                const idx = parseInt(el.id.split('-')[1]);
+                if(currentSelection.includes(idx)) el.classList.add('selected');
+                else el.classList.remove('selected');
+            });
+        }
 
-function focusNode(el){
-  const x = el.offsetLeft;
-  const y = el.offsetTop;
+        function selectOptionFull(qIdx, oIdx, isMulti) {
+            let ans = userAns[qIdx] || [];
+            if(isMulti) {
+                if(ans.includes(oIdx)) ans = ans.filter(i=>i!==oIdx);
+                else ans.push(oIdx);
+            } else {
+                ans = [oIdx];
+            }
+            userAns[qIdx] = ans;
+            
+            const parent = document.getElementById(`q${qIdx}-opt${oIdx}`).parentNode;
+            Array.from(parent.children).forEach((el, i) => {
+                if(ans.includes(i)) el.classList.add('selected');
+                else el.classList.remove('selected');
+            });
+        }
 
-  scale = 1.2;
-  ox = window.innerWidth/2 - (x + NODE_W/2) * scale;
-  oy = window.innerHeight/2 - (y + NODE_H/2) * scale;
-  update();
+        // --- SUBMIT ---
+        function submitAnswer() {
+            if(mode === 'full') {
+                if(confirm("আপনি কি নিশ্চিত যে আপনি কুইজ জমা দিতে চান?")) {
+                    finishQuiz();
+                }
+                return;
+            }
 
-  el.style.boxShadow = "0 0 30px #facc15";
-  setTimeout(()=>el.style.boxShadow="",1200);
-}
+            if(currentSelection.length === 0) return;
+            
+            const q = questions[curIdx];
+            userAns[curIdx] = [...currentSelection];
+            
+            q.opts.forEach((_, i) => {
+                const el = document.getElementById(`opt-${i}`);
+                el.classList.remove('selected');
+                if(q.correct.includes(i)) el.classList.add('correct');
+                else if(currentSelection.includes(i)) el.classList.add('wrong');
+            });
 
-/* ================= DRAWER ================= */
-function openDrawer(n){
-  drawer.style.display="flex";
-  dTitle.textContent=n.name;
-  dInfo.textContent=n.details?.info||"এই নোডের জন্য অতিরিক্ত তথ্য নেই।";
-  dChildren.innerHTML="";
-  (n.children||[]).forEach(c=>{
-    const b=document.createElement("span");
-    b.className="badge";
-    b.textContent=c.name;
-    dChildren.appendChild(b);
-  });
-}
-function closeDrawer(){drawer.style.display="none"}
+            document.getElementById('exp-text').innerText = q.exp || "কোন ব্যাখ্যা নেই।";
+            document.getElementById('explanation').style.display = 'block';
 
-/* ================= COLOR ================= */
-function color(t){
-  return {
-    root:"#064E3B",
-    bayidah:"#9333EA",
-    ariba:"#407cde",
-    mustariba:"#EA580C",
-    prophet:"#047857",
-    "prophet-line":"#10b981",
-    "prophet-ancestor":"#10b981",
-    "gap-green":"#a7f3d0"
-  }[t]||"#64748b";
-}
-function iconFor(type){
-  return {
-    root:"🕋",
-    prophet:"🕌",
-    "prophet-line":"🕌",
-    "prophet-ancestor":"🕌",
-    bayidah:"🏛️",
-    ariba:"🏛️",
-    mustariba:"🏛️",
-    "gap-green":"➖"
-  }[type] || "👤";
-}
-</script>
+            document.getElementById('btn-submit').style.display = 'none';
+            if(curIdx < questions.length - 1) {
+                document.getElementById('btn-next').style.display = 'block';
+            } else {
+                document.getElementById('btn-finish').style.display = 'block';
+            }
+            
+            currentSelection = [];
+        }
 
+        function nextQuestion() {
+            curIdx++;
+            renderSingle();
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            document.getElementById('sticky-timer').classList.remove('active');
+            document.getElementById('main-header').style.display = 'block'; 
+            document.getElementById('main-container').classList.remove('no-header');
+            
+            score = 0;
+            questions.forEach((q, i) => {
+                const u = (userAns[i] || []).sort().toString();
+                const c = q.correct.sort().toString();
+                if(u === c) score++;
+            });
+
+            showScreen('screen-result');
+            document.getElementById('score-val').innerText = toBanglaNum(score);
+            document.getElementById('score-max').innerText = "/" + toBanglaNum(questions.length);
+            
+            const pct = (score / questions.length) * 100;
+            let msg = "";
+            if(pct >= 80) msg = "মাশাআল্লাহ! চমৎকার হয়েছে";
+            else if(pct >= 50) msg = "আলহামদুলিল্লাহ, ভালো প্রচেষ্টা";
+            else msg = "আরও পড়াশোনা করা প্রয়োজন";
+            document.getElementById('feedback-msg').innerText = msg;
+
+            let revHtml = "";
+            questions.forEach((q, i) => {
+                const u = userAns[i] || [];
+                const isCorr = JSON.stringify(u.sort()) === JSON.stringify(q.correct.sort());
+                const uText = u.map(idx => q.opts[idx]).join(", ");
+                const cText = q.correct.map(idx => q.opts[idx]).join(", ");
+                
+                revHtml += `
+                <div class="review-card">
+                    <div style="font-weight:bold; margin-bottom:5px; color:#145A32;">${toBanglaNum(i+1)}. ${q.q}</div>
+                    <div style="font-size:0.9rem;">
+                        ${isCorr ? 
+                            `<span style="color:green; font-weight:bold;">✔ সঠিক</span>` : 
+                            `<span style="color:#C0392B; font-weight:bold;">✘ ভুল (আপনার উত্তর: ${uText||'ফাঁকা'})</span>`
+                        }
+                    </div>
+                    <div style="font-size:0.9rem; color:#555; margin-top:5px;">সঠিক উত্তর: <b>${cText}</b></div>
+                    <div style="background:#F4F8F5; padding:8px; margin-top:5px; font-size:0.85rem; border-radius:4px;">${q.exp}</div>
+                </div>`;
+            });
+            document.getElementById('review-list').innerHTML = revHtml;
+        }
+
+        // --- UTILS ---
+        function toBanglaNum(n) {
+            return n.toString().replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d]);
+        }
+    </script>
 </body>
 </html>
-
-
